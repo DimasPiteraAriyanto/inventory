@@ -1,0 +1,66 @@
+
+    /* Style for the select element */
+.custom-select {
+    appearance: none;
+    background: transparent;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 16px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+/* Style for the selected option */
+.custom-select option:checked {
+    background-color: #007bff;
+    color: #fff;
+}
+
+    .select2-container--default .select2-selection--single {
+        background-color: #eef2f8 !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        top: 8px !important;
+    }
+
+    .select2-container .select2-selection--single {
+        height: 44px !important;
+    }
+
+    .select2-container .select2-selection--single .select2-selection__rendered {
+        padding-top: 8px !important;
+    }
+
+    .select2-dropdown {
+        background-color: #eef2f8 !important;
+    }
+
+
+/*  custom badge plus   */
+    @keyframes sonar {
+        0% { transform: scale(.9); opacity: 1; }
+        100% { transform: scale(2); opacity: 0; }
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        20% { transform: scale(1.4); }
+        100% { transform: scale(1); }
+    }
+
+    .pulse-badge .badge {
+        animation: pulse 1s infinite alternate;
+    }
+
+    .sonar-badge .badge {
+        animation: sonar 1.5s infinite;
+    }
+
+    /* Added styles for scrollable notifications */
+    #notification-list {
+        max-height: 200px; /* Set the maximum height */
+        overflow-y: auto; /* Enable vertical scrolling */
+    }
+

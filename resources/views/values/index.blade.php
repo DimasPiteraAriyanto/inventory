@@ -1,0 +1,212 @@
+@extends('dashboard.body.main')
+
+@section('content')
+    <!-- BEGIN: Header -->
+    <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
+        <div class="container-xl px-4">
+            <div class="page-header-content pt-4">
+                <div class="row align-items-center justify-content-between">
+                    <div class="col-auto mt-4">
+                        <h1 class="page-header-title">
+                            <div class="page-header-icon"><i class="fa-solid fa-folder"></i></div>
+                            Master Values List
+                        </h1>
+                    </div>
+                    <div class="col-auto my-4">
+                        <a href="{{ route('values.create') }}" class="btn btn-primary add-list"><i
+                                class="fa-solid fa-plus me-3"></i>Add</a>
+                        <a href="{{ route('values.index') }}" class="btn btn-danger add-list"><i
+                                class="fa-solid fa-trash me-3"></i>Clear Search</a>
+                    </div>
+                </div>
+
+                <nav class="mt-4 rounded" aria-label="breadcrumb">
+                    <ol class="breadcrumb px-3 py-2 rounded mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Values</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <!-- BEGIN: Alert -->
+        <div class="container-xl px-4 mt-n4">
+            @if (session()->has('success'))
+                <div class="alert alert-success alert-icon" role="alert">
+                    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <div class="alert-icon-aside">
+                        <i class="far fa-flag"></i>
+                    </div>
+                    <div class="alert-icon-content">
+                        {{ session('success') }}
+                    </div>
+                </div>
+            @endif
+        </div>
+        <!-- END: Alert -->
+    </header>
+    <!-- END: Header -->
+
+    <!-- BEGIN: Main Page Content -->
+    <div class="container px-2 mt-n10">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row mx-n4">
+                    <div class="col-lg-12 card-header mt-n4">
+                        <form action="{{ route('values.index') }}" method="GET">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between">
+                                <div class="form-group row align-items-center">
+                                    <label for="row" class="col-auto">Row:</label>
+                                    <div class="col-auto">
+                                        <select class="form-control" name="row">
+                                            <option value="10" @if(request('row') == '10')selected="selected"@endif>10
+                                            </option>
+                                            <option value="25" @if(request('row') == '25')selected="selected"@endif>25
+                                            </option>
+                                            <option value="50" @if(request('row') == '50')selected="selected"@endif>50
+                                            </option>
+                                            <option value="100" @if(request('row') == '100')selected="selected"@endif>
+                                                100
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row align-items-center justify-content-between">
+                                    <label class="control-label col-sm-3" for="search">Search:</label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <input type="text" id="search" class="form-control me-1" name="search"
+                                                   placeholder="Search unit" value="{{ request('search') }}">
+                                            <div class="input-group-append">
+                                                <button type="submit" class="input-group-text bg-primary"><i
+                                                        class="fa-solid fa-magnifying-glass font-size-20 text-white"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <hr>
+
+                    <div class="col-lg-12">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">No.</th>
+                                    <th scope="col">@sortablelink('name', 'Name')</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach ($values as $value)
+                                    <tr class="value-row">
+                                        <th scope="row">{{ (($values->currentPage() * (request('row') ? request('row') : 10)) - (request('row') ? request('row') : 10)) + $loop->iteration }}</th>
+                                        <td>{{ $value->name }}</td>
+                                        <td>
+                                            <div class="d-flex">
+                                                <a href="{{ route('values.edit', $value->id) }}" class="btn btn-outline-primary btn-sm mx-1"><i class="fas fa-edit"></i></a>
+                                                <button class="btn btn-outline-info btn-sm mx-1"
+                                                            onclick="toggleDetailRow(this)">Value Details
+                                                    </button>
+                                                <form id="deleteForm" action="{{ route('values.destroy', $value->id) }}" method="POST">
+                                                    @csrf
+                                                    @method('delete')
+                                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmDelete()">
+                                                        <i class="far fa-trash-alt"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="detail-row" style="display: none;">
+                                        <td colspan="4"> <!-- colspan is adjusted based on your column count -->
+                                            <table class="detail-values-table" width="100%">
+                                                <tr>
+                                                    <th scope="col">No.</th>
+                                                    <th scope="col">Nama</th>
+                                                    <th scope="col">Deskripsi</th>
+                                                    <th scope="col">Action</th>
+                                                </tr>
+                                                @foreach ($value->detailValues as $detailValue)
+                                                    <tr class="detail-value-row">
+                                                        <td scope="row">{{ (($values->currentPage() * (request('row') ? request('row') : 10)) - (request('row') ? request('row') : 10)) + $loop->iteration }}</td>
+                                                        <td>{{ $detailValue->name }}</td>
+                                                        <td>{{ $detailValue->description }}</td>
+                                                        <td>
+                                                            <form id="deleteFormDetail" action="{{ route('valuesDetail.destroy', $detailValue->id) }}" method="POST">
+                                                                @csrf
+                                                                @method('delete')
+                                                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmDeleteDetail()">
+                                                                    <i class="far fa-trash-alt"></i>
+                                                                </button>
+                                                            </form>
+                                                        </td>
+                                                        <!-- Display other detail value properties as needed -->
+                                                    </tr>
+                                                @endforeach
+                                            </table>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {{ $values->links() }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END: Main Page Content -->
+    <script>
+        function toggleDetailRow(button) {
+            const valueRow = button.closest('tr.value-row');
+            if (valueRow) {
+                const detailRow = valueRow.nextElementSibling;
+                if (detailRow) {
+                    detailRow.style.display = (detailRow.style.display === 'none' || detailRow.style.display === '') ? 'table-row' : 'none';
+                }
+            }
+        }
+
+        function confirmDelete() {
+            Swal.fire({
+                title: 'Apakah Anda Yakin?',
+                text: 'Data Master Value Akan Dihapus Permanen',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, Hapus!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Submit the form if user confirms
+                    document.getElementById('deleteForm').submit();
+                }
+            });
+        }
+
+        function confirmDeleteDetail() {
+            Swal.fire({
+                title: 'Apakah Anda Yakin?',
+                text: 'Data Detail Value Akan Dihapus Permanen',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, Hapus!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Submit the form if user confirms
+                    document.getElementById('deleteFormDetail').submit();
+                }
+            });
+        }
+    </script>
+@endsection
